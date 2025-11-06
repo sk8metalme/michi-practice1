@@ -1,0 +1,188 @@
+---
+title: Atlassian MCP連携ルール
+description: Confluence/JIRA との MCP 統合ルール
+---
+
+# Atlassian MCP連携ルール
+
+## 前提条件
+
+Cursor に Atlassian MCP サーバーが設定されていること：
+- `~/.cursor/mcp.json` に認証情報設定済み
+
+参考: [Atlassian MCP](https://www.atlassian.com/ja/platform/remote-mcp-server)
+
+## 利用可能なMCPツール
+
+Cursor AI が以下のツールを使用可能：
+
+### Confluence
+- `confluence_create_page`: ページ作成
+- `confluence_update_page`: ページ更新
+- `confluence_search`: ページ検索
+- `confluence_get_page`: ページ取得
+
+### JIRA
+- `jira_create_issue`: チケット作成
+- `jira_update_issue`: チケット更新
+- `jira_search`: チケット検索
+- `jira_get_issue`: チケット取得
+
+## ワークフロー統合
+
+**重要**: ページ/チケットの作成・更新は**必ずREST APIスクリプトを使用**すること。MCPツールは参照・検索のみに使用。
+
+### 要件定義フェーズ
+
+`.kiro/specs/<feature>/requirements.md` 生成後：
+
+```
+スクリプト実行（必須）:
+  npm run phase:run <feature> requirements
+
+実行内容:
+1. プロジェクトメタデータを読み込み (.kiro/project.json)
+2. Markdownを変換（markdown-to-confluence.ts）
+3. REST APIでページ作成（confluence-sync.ts）
+4. spec.json自動更新
+5. バリデーション実行
+```
+
+### 設計フェーズ
+
+`.kiro/specs/<feature>/design.md` 生成後：
+
+```
+スクリプト実行（必須）:
+  npm run phase:run <feature> design
+
+実行内容:
+1. REST APIでConfluenceページ作成（confluence-sync.ts）
+2. spec.json自動更新
+3. バリデーション実行
+```
+
+### タスク分割フェーズ
+
+`.kiro/specs/<feature>/tasks.md` 生成後：
+
+```
+スクリプト実行（必須）:
+  npm run phase:run <feature> tasks
+
+実行内容:
+1. REST APIでEpic作成（jira-sync.ts）
+2. REST APIでStory作成（全ストーリー、jira-sync.ts）
+3. 見積もりポイント設定
+4. spec.json自動更新
+5. バリデーション実行
+```
+
+### 実装フェーズ
+
+実装開始時と完了時にJIRAを更新（MCPまたはスクリプト、どちらでも可）：
+
+```
+オプション1: MCPツール（単一更新の場合）
+  jira_update_issue({
+    issue_key: "MICHI-123",
+    status: "In Progress"
+  })
+
+オプション2: REST APIスクリプト（一括更新の場合）
+  npm run jira:sync <feature>
+```
+
+## MCP使用のガイドライン
+
+### いつMCPを使うか
+
+✅ **使用推奨（参照・検索のみ）**:
+- Confluenceページの検索・取得（参照目的）
+- JIRAチケットの検索・取得（参照目的）
+- 単一操作での情報取得
+- Cursor AI内での対話的な情報確認
+
+❌ **使用禁止（作成・更新）**:
+- Confluenceページの作成・更新 → **スクリプト使用必須**
+- JIRAチケットの作成・更新 → **スクリプト使用必須**
+- 一括処理（10+ページ/チケット） → **スクリプト使用必須**
+- 複雑なワークフロー → **スクリプト使用必須**
+
+### MCPとREST APIスクリプトの使い分け
+
+| 用途 | 手段 | 理由 |
+|------|------|------|
+| ページ/チケット作成 | **REST APIスクリプト** | レートリミット対策、エラーハンドリング、一括処理対応 |
+| ページ/チケット更新 | **REST APIスクリプト** | レートリミット対策、エラーハンドリング |
+| ページ/チケット検索（参照） | MCP | シンプル、AI統合 |
+| ページ/チケット取得（参照） | MCP | シンプル、AI統合 |
+
+## レート制限
+
+Atlassian のレート制限は製品（Confluence/JIRA）、テナント、アプリコンテキスト、プランによって異なり、割り当て（quota）とバースト（burst）方式、または分単位のウィンドウで制御されます。
+
+**Confluence Cloud**:
+- マイグレーション時: 6,000～12,000リクエスト/分
+- 一般使用: 割り当て＋バースト方式（約10秒のバーストウィンドウ、1時間のクォータウィンドウ）
+
+**JIRA Cloud**:
+- コスト/割り当てベースの制限（アプリごと、ユーザーごと、アプリ＋ユーザー）
+- Issue書き込み制限: 20操作/2秒、100操作/30秒
+
+レート制限に達すると `429` レスポンスが返され、`Retry-After` および `X-RateLimit-*` ヘッダーで再試行のガイダンスが提供されます。
+
+**推奨対策**:
+- レスポンスヘッダー（`Retry-After`, `X-RateLimit-*`）を検出・尊重
+- 指数バックオフ＋ジッター付き再試行を実装
+- キャッシングとバッチ処理を活用
+- 頻繁な操作はREST API使用（細かい制御が可能）
+
+**公式ドキュメント**:
+- [Confluence API Rate Limiting](https://developer.atlassian.com/cloud/confluence/rate-limiting/)
+- [JIRA API Rate Limiting](https://developer.atlassian.com/cloud/jira/platform/rate-limiting/)
+- [App Migration Rate Limiting](https://developer.atlassian.com/platform/app-migration/rate-limiting/)
+
+## プロジェクトメタデータの活用
+
+### MCPツール呼び出し時
+
+```typescript
+// プロジェクトメタデータを読み込み
+const projectMeta = JSON.parse(
+  fs.readFileSync('.kiro/project.json', 'utf-8')
+);
+
+// MCPツールで使用
+confluence_create_page({
+  space: "PRD",
+  title: `[${projectMeta.projectName}] ...`,
+  labels: [...projectMeta.confluenceLabels, ...additionalLabels]
+});
+```
+
+## トラブルシューティング
+
+### MCP接続エラー
+
+1. Cursor を再起動
+2. `~/.cursor/mcp.json` の認証情報を確認
+3. Atlassian API Token が有効か確認
+
+### レート制限エラー
+
+レートリミット対策済みスクリプトを使用：
+```bash
+# レートリミット対策（500ms待機）が実装済み
+npm run confluence:sync <feature>
+npm run jira:sync <feature>
+
+# 待機時間を調整する場合
+ATLASSIAN_REQUEST_DELAY=1000 npm run jira:sync <feature>
+```
+
+### ページ作成エラー
+
+- Confluenceスペースが存在するか確認
+- ページタイトルが重複していないか確認
+- 権限があるか確認

@@ -1,0 +1,58 @@
+{
+  "featureId": "calculator-app",
+  "featureName": "Web電卓アプリケーション",
+  "projectId": "michi-practice1",
+  "status": "tasks",
+  "phase": "tasks",
+  "createdAt": "2025-11-06",
+  "updatedAt": "2025-11-06",
+  "owner": "開発チーム",
+  "priority": "high",
+  "technology": {
+    "language": "Java",
+    "framework": "Spring Boot",
+    "frontend": "Thymeleaf",
+    "architecture": "Onion Architecture",
+    "methodology": "TDD"
+  },
+  "milestones": {
+    "init": {
+      "completed": true,
+      "date": "2025-11-06"
+    },
+    "requirements": {
+      "completed": true,
+      "date": "2025-11-06"
+    },
+    "design": {
+      "completed": true,
+      "date": "2025-11-06"
+    },
+    "tasks": {
+      "completed": true,
+      "date": "2025-11-06"
+    },
+    "implementation": {
+      "completed": false,
+      "date": null
+    }
+  },
+  "confluence": {
+    "spaceKey": "Michi",
+    "spaceId": "41123844",
+    "requirementsPageId": "41058307",
+    "designPageId": "41124290"
+  },
+  "jira": {
+    "projectKey": "MP",
+    "projectId": "10033",
+    "epicKey": "MP-1",
+    "epicId": "10033",
+    "stories": {
+      "created": 20,
+      "total": 20,
+      "keys": ["MP-245", "MP-246", "MP-247", "MP-248", "MP-249", "MP-250", "MP-251", "MP-252", "MP-253", "MP-254", "MP-255", "MP-256", "MP-257", "MP-258", "MP-259", "MP-260", "MP-261", "MP-262", "MP-263", "MP-264"]
+    }
+  }
+}
+

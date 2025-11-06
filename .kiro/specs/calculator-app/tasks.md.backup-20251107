@@ -1,0 +1,1262 @@
+# タスク分割: Web電卓アプリケーション
+
+> **プロジェクト**: michi-practice1  
+> **作成日**: 2025-11-06  
+> **作成者**: 開発チーム  
+> **Epic**: PRAC1-1（作成予定）  
+> **設計書**: [design.md](./design.md)
+
+## 概要
+
+Java 21 + Spring Boot 3.5 + ThymeleafでWebブラウザ動作する電卓アプリケーションを、Onion ArchitectureとTDD（テスト駆動開発）で実装します。
+
+**開発原則**:
+- **TDD**: テスト → 実装 → リファクタリングのサイクル
+- **内側から外側へ**: Domain層 → Application層 → Infrastructure層 → Presentation層
+- **カバレッジ目標**: 95%以上（Domain層は100%）
+
+## Epic
+
+**Epic**: [MP-1] Web電卓アプリケーション開発  
+**JIRA**: https://0kuri0n.atlassian.net/browse/MP-1  
+**説明**: Onion Architecture + TDDで学習目的の電卓アプリを実装  
+**優先度**: High  
+**見積もり**: 29 SP（約14.5人日）
+
+---
+
+## Phase 0: 要件定義（Requirements）
+
+### Story 0.1: 要件定義書作成
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 2 SP  
+**担当**: PM
+
+**説明**:
+ステークホルダーへのヒアリングと要件定義書の作成
+
+**受け入れ条件**:
+- [x] ステークホルダーへのヒアリング完了
+- [x] 機能要件の定義
+- [x] 非機能要件の定義
+- [x] requirements.md作成 ✅
+- [x] Confluenceページ作成 ✅
+
+**サブタスク**:
+- [x] Task 0.1.1: ステークホルダーヒアリング（2h）
+- [x] Task 0.1.2: 要件定義書作成（3h）
+- [x] Task 0.1.3: Confluence同期（0.5h）
+
+**依存関係**: なし
+
+---
+
+### Story 0.2: PM承認
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 1 SP  
+**担当**: PM
+
+**説明**:
+要件定義書のレビューとPM承認の取得
+
+**受け入れ条件**:
+- [x] PMレビュー完了
+- [x] 部長承認取得
+- [x] spec.jsonのmilestones.requirements.completed更新 ✅
+
+**サブタスク**:
+- [x] Task 0.2.1: PMレビュー依頼（0.5h）
+- [x] Task 0.2.2: フィードバック対応（1h）
+- [x] Task 0.2.3: 部長承認取得（0.5h）
+
+**依存関係**: Story 0.1完了後
+
+---
+
+## Phase 1: 設計（Design）
+
+### Story 1.1: 基本設計
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 3 SP  
+**担当**: リードエンジニア
+
+**説明**:
+アーキテクチャ、データモデル、API設計の基本設計
+
+**受け入れ条件**:
+- [x] アーキテクチャ設計完了（Onion Architecture）
+- [x] データモデル設計完了
+- [x] API仕様設計完了
+- [x] design.md作成（基本設計セクション）
+
+**サブタスク**:
+- [x] Task 1.1.1: アーキテクチャ設計（3h）
+- [x] Task 1.1.2: データモデル設計（2h）
+- [x] Task 1.1.3: API仕様設計（2h）
+
+**依存関係**: Story 0.2完了後
+
+---
+
+### Story 1.2: 詳細設計
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 5 SP  
+**担当**: 開発者
+
+**説明**:
+クラス設計、シーケンス図、画面設計の詳細設計
+
+**受け入れ条件**:
+- [x] クラス図作成
+- [x] シーケンス図作成
+- [x] 画面設計完了
+- [x] design.md完成 ✅
+- [x] Confluenceページ作成 ✅
+
+**サブタスク**:
+- [x] Task 1.2.1: クラス設計（5h）
+- [x] Task 1.2.2: シーケンス図作成（3h）
+- [x] Task 1.2.3: 画面設計（2h）
+- [x] Task 1.2.4: Confluence同期（0.5h）
+
+**依存関係**: Story 1.1完了後
+
+---
+
+### Story 1.3: 技術レビュー・PM承認
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 1 SP  
+**担当**: PM、リードエンジニア
+
+**説明**:
+設計書の技術レビューとPM承認の取得
+
+**受け入れ条件**:
+- [x] 技術レビュー完了
+- [x] PM承認取得
+- [x] spec.jsonのmilestones.design.completed更新 ✅
+
+**サブタスク**:
+- [x] Task 1.3.1: 技術レビュー（1h）
+- [x] Task 1.3.2: フィードバック対応（1h）
+- [x] Task 1.3.3: PM承認取得（0.5h）
+
+**依存関係**: Story 1.2完了後
+
+---
+
+## Phase 2: プロジェクトセットアップ（Implementation）
+
+### Story 2.1: プロジェクト初期化
+
+**JIRA**: MP-2 ✅  
+**優先度**: High  
+**見積もり**: 2 SP  
+**担当**: 開発者
+
+**説明**:
+Gradle + Spring Boot 3.5のプロジェクトを作成し、Onion Architectureのディレクトリ構造を構築します。
+
+**受け入れ条件**:
+- [x] Gradleプロジェクト作成（Java 21、Spring Boot 3.5）
+- [x] Onion Architectureのパッケージ構造作成
+- [x] build.gradleに必要な依存関係を追加
+- [x] application.ymlの基本設定
+- [x] .gitignore設定
+
+**サブタスク**:
+- [x] Task 1.1.1: Gradle初期化（0.5h）
+  ```bash
+  gradle init --type java-application --dsl kotlin
+  ```
+- [x] Task 1.1.2: Spring Boot依存関係追加（0.5h）
+  - spring-boot-starter-web
+  - spring-boot-starter-thymeleaf
+  - spring-boot-starter-data-jpa
+  - spring-boot-starter-validation
+  - spring-boot-starter-security
+- [x] Task 1.1.3: テスト依存関係追加（0.5h）
+  - spring-boot-starter-test
+  - assertj-core:3.24.2
+  - mockito-core:5.7.0
+- [x] Task 1.1.4: パッケージ構造作成（0.5h）
+  ```
+  src/main/java/com/example/calculator/
+    ├── domain/
+    │   ├── model/
+    │   └── service/
+    ├── application/
+    │   ├── usecase/
+    │   └── port/
+    │       ├── in/
+    │       └── out/
+    ├── infrastructure/
+    │   ├── persistence/
+    │   │   ├── entity/
+    │   │   └── repository/
+    │   └── config/
+    └── presentation/
+        ├── controller/
+        └── dto/
+  ```
+- [x] Task 1.1.5: H2 Database設定（0.5h）
+- [x] Task 1.1.6: SecurityConfig初期設定（0.5h）
+
+**依存関係**: なし
+
+---
+
+## Phase 2: Domain層（Implementation）
+
+### Story 3.1: Domainモデル実装
+
+**JIRA**: MP-3 ✅  
+**優先度**: High  
+**見積もり**: 3 SP  
+**担当**: 開発者
+
+**説明**:
+Domain層のエンティティ、値オブジェクト、列挙型をTDDで実装します。外部依存なしの純粋なJavaコードです。
+
+**受け入れ条件**:
+- [x] Operationモデル（列挙型）のテスト・実装
+- [x] CalculationResultモデル（値オブジェクト）のテスト・実装
+- [x] Calculationモデル（エンティティ）のテスト・実装
+- [x] テストカバレッジ100%
+
+**サブタスク**:
+
+#### Task 2.1.1: Operation列挙型（TDD）
+- [ ] **[Red]** OperationTest作成（0.5h）
+  - 各演算種別のシンボル取得テスト
+  - 演算種別の説明取得テスト
+- [ ] **[Green]** Operation実装（0.5h）
+  - ADD, SUBTRACT, MULTIPLY, DIVIDE
+  - getSymbol(), getDescription()
+- [ ] **[Refactor]** リファクタリング（0.2h）
+
+#### Task 2.1.2: CalculationResult値オブジェクト（TDD）
+- [ ] **[Red]** CalculationResultTest作成（1h）
+  - 成功時のテスト（success()ファクトリメソッド）
+  - エラー時のテスト（error()ファクトリメソッド）
+  - getValue()のテスト（成功時/エラー時）
+  - エッジケーステスト
+- [ ] **[Green]** CalculationResult実装（1h）
+  - ファクトリメソッド（success, error）
+  - isSuccess(), getValue(), getErrorMessage()
+- [ ] **[Refactor]** リファクタリング（0.3h）
+
+#### Task 2.1.3: Calculationエンティティ（TDD）
+- [ ] **[Red]** CalculationTest作成（1.5h）
+  - Builderパターンのテスト
+  - 不変性のテスト
+  - equals/hashCodeのテスト
+  - null安全性のテスト
+- [ ] **[Green]** Calculation実装（1.5h）
+  - Builderパターン実装
+  - Getters（Setterなし）
+  - equals, hashCode, toString
+- [ ] **[Refactor]** リファクタリング（0.5h）
+
+**見積もり詳細**: 7.5h ≈ 3 SP
+
+**依存関係**: Story 1.1完了後
+
+---
+
+### Story 3.2: CalculatorDomainService実装
+
+**JIRA**: MP-4 ✅  
+**優先度**: High  
+**見積もり**: 5 SP  
+**担当**: 開発者
+
+**説明**:
+四則演算のビジネスロジックをTDDで実装します。BigDecimalを使用した精度保証、ゼロ除算エラーハンドリングを含みます。
+
+**受け入れ条件**:
+- [x] 加算のテスト・実装
+- [x] 減算のテスト・実装
+- [x] 乗算のテスト・実装
+- [x] 除算のテスト・実装（ゼロ除算含む）
+- [x] エッジケーステスト（小数点精度、負の数など）
+- [x] テストカバレッジ100%
+
+**サブタスク**:
+
+#### Task 2.2.1: 加算機能（TDD）
+- [ ] **[Red]** 加算テスト作成（0.5h）
+  - 正の数同士
+  - 負の数を含む
+  - 小数点を含む
+- [ ] **[Green]** 加算実装（0.3h）
+- [ ] **[Refactor]** リファクタリング（0.2h）
+
+#### Task 2.2.2: 減算機能（TDD）
+- [ ] **[Red]** 減算テスト作成（0.5h）
+  - 正の数同士
+  - 負の数を含む
+  - 小数点を含む
+- [ ] **[Green]** 減算実装（0.3h）
+- [ ] **[Refactor]** リファクタリング（0.2h）
+
+#### Task 2.2.3: 乗算機能（TDD）
+- [ ] **[Red]** 乗算テスト作成（0.5h）
+  - 正の数同士
+  - 負の数を含む
+  - 小数点を含む
+  - ゼロとの乗算
+- [ ] **[Green]** 乗算実装（0.3h）
+- [ ] **[Refactor]** リファクタリング（0.2h）
+
+#### Task 2.2.4: 除算機能（TDD）
+- [ ] **[Red]** 除算テスト作成（1.5h）
+  - 正の数同士
+  - 負の数を含む
+  - 小数点を含む
+  - **ゼロ除算エラーケース**
+  - 精度（小数点以下10桁）
+- [ ] **[Green]** 除算実装（1h）
+  - BigDecimal.divide()（SCALE=10, HALF_UP）
+  - ゼロ除算チェック
+  - CalculationResult.error()返却
+- [ ] **[Refactor]** リファクタリング（0.5h）
+
+#### Task 2.2.5: エッジケーステスト
+- [ ] **[Red]** エッジケーステスト追加（1h）
+  - 非常に大きな数
+  - 非常に小さな数
+  - 精度限界のテスト
+- [ ] **[Green]** 実装調整（0.5h）
+- [ ] **[Refactor]** 最終リファクタリング（0.5h）
+
+**見積もり詳細**: 8h ≈ 5 SP
+
+**依存関係**: Story 3.1完了後
+
+---
+
+## Phase 2: Application層（Implementation）
+
+### Story 4.1: ポート（インターフェース）定義
+
+**JIRA**: MP-5 ✅  
+**優先度**: High  
+**見積もり**: 1 SP  
+**担当**: 開発者
+
+**説明**:
+Application層のポート（インターフェース）を定義します。依存性逆転の原則（DIP）を適用します。
+
+**受け入れ条件**:
+- [x] CalculatorService（入力ポート）定義
+- [x] CalculationRepository（出力ポート）定義
+- [x] Javadocコメント記述
+
+**サブタスク**:
+- [ ] Task 3.1.1: CalculatorService定義（1h）
+  - calculate()
+  - getHistory()
+  - clearHistory()
+- [ ] Task 3.1.2: CalculationRepository定義（1h）
+  - save()
+  - findById()
+  - findAllOrderByCalculatedAtDesc()
+  - deleteAll()
+  - count()
+
+**見積もり詳細**: 2h ≈ 1 SP
+
+**依存関係**: Story 3.2完了後
+
+---
+
+### Story 4.2: CalculateUseCase実装
+
+**JIRA**: MP-6 ✅  
+**優先度**: High  
+**見積もり**: 3 SP  
+**担当**: 開発者
+
+**説明**:
+計算ユースケースをTDDで実装します。CalculatorDomainServiceを使用し、成功時に履歴を保存します。
+
+**受け入れ条件**:
+- [x] 計算実行のテスト・実装
+- [x] 履歴保存のテスト・実装
+- [x] エラーケースのテスト・実装
+- [x] モック化されたRepositoryを使用
+- [x] テストカバレッジ95%以上
+
+**サブタスク**:
+
+#### Task 3.2.1: 計算実行機能（TDD）
+- [ ] **[Red]** 計算実行テスト作成（1.5h）
+  - 四則演算すべてのテスト
+  - DomainServiceのモック使用
+  - Repositoryのモック使用
+- [ ] **[Green]** calculate()実装（1h）
+  - DomainServiceの呼び出し
+  - 成功時はRepository.save()
+  - 失敗時は保存しない
+- [ ] **[Refactor]** リファクタリング（0.5h）
+
+#### Task 3.2.2: 履歴取得機能（TDD）
+- [ ] **[Red]** getHistory()テスト作成（0.5h）
+- [ ] **[Green]** getHistory()実装（0.3h）
+- [ ] **[Refactor]** リファクタリング（0.2h）
+
+#### Task 3.2.3: 履歴クリア機能（TDD）
+- [ ] **[Red]** clearHistory()テスト作成（0.5h）
+- [ ] **[Green]** clearHistory()実装（0.3h）
+- [ ] **[Refactor]** リファクタリング（0.2h）
+
+#### Task 3.2.4: 履歴上限管理機能（TDD）
+- [ ] **[Red]** 履歴100件上限テスト（0.5h）
+- [ ] **[Green]** maintainHistoryLimit()実装（0.5h）
+- [ ] **[Refactor]** リファクタリング（0.3h）
+
+**見積もり詳細**: 6h ≈ 3 SP
+
+**依存関係**: Story 3.1完了後
+
+---
+
+## Phase 2: Infrastructure層（Implementation）
+
+### Story 5.1: JPA Entity実装
+
+**JIRA**: MP-7 ✅  
+**優先度**: High  
+**見積もり**: 2 SP  
+**担当**: 開発者
+
+**説明**:
+JPA Entityとドメインモデルの変換ロジックを実装します。
+
+**受け入れ条件**:
+- [x] CalculationEntity作成
+- [x] fromDomain()メソッド（ドメイン→Entity）
+- [x] toDomain()メソッド（Entity→ドメイン）
+- [x] JPA設定（@Entity, @Table, @Column）
+
+**サブタスク**:
+- [ ] Task 4.1.1: CalculationEntity基本実装（1.5h）
+  - @Entity, @Table設定
+  - カラム定義（operand1, operand2, operation, result, calculatedAt）
+  - @Enumerated(EnumType.STRING)
+- [ ] Task 4.1.2: 変換メソッド実装（1h）
+  - fromDomain()
+  - toDomain()
+- [ ] Task 4.1.3: DDL自動生成確認（0.5h）
+  - application.ymlでddl-auto設定
+  - スキーマ確認
+
+**見積もり詳細**: 3h ≈ 2 SP
+
+**依存関係**: Story 3.2完了後
+
+---
+
+### Story 5.2: JPA Repository実装
+
+**JIRA**: MP-8 ✅  
+**優先度**: High  
+**見積もり**: 3 SP  
+**担当**: 開発者
+
+**説明**:
+Spring Data JPA Repositoryを実装し、統合テストで動作確認します。
+
+**受け入れ条件**:
+- [x] SpringDataJpaCalculationRepository作成
+- [x] JpaCalculationRepositoryAdapter実装
+- [x] @DataJpaTestによる統合テスト
+- [x] すべてのCRUD操作の動作確認
+
+**サブタスク**:
+
+#### Task 4.2.1: Spring Data JPA Repository
+- [ ] SpringDataJpaCalculationRepository作成（0.5h）
+  - JpaRepository継承
+  - カスタムクエリ不要（Spring Data JPAの自動実装）
+
+#### Task 4.2.2: Adapterパターン実装
+- [ ] **[Red]** JpaCalculationRepositoryAdapterTest作成（2h）
+  - @DataJpaTest使用
+  - H2インメモリDB使用
+  - save()テスト
+  - findById()テスト
+  - findAllOrderByCalculatedAtDesc()テスト
+  - deleteAll()テスト
+  - count()テスト
+- [ ] **[Green]** JpaCalculationRepositoryAdapter実装（1.5h）
+  - CalculationRepositoryインターフェース実装
+  - Entity↔Domainの変換
+  - ページング処理（PageRequest）
+- [ ] **[Refactor]** リファクタリング（0.5h）
+
+#### Task 4.2.3: トランザクション設定
+- [ ] @Transactional設定確認（0.5h）
+
+**見積もり詳細**: 5h ≈ 3 SP
+
+**依存関係**: Story 5.1完了後
+
+---
+
+## Phase 2: Presentation層（Implementation）
+
+### Story 6.1: Controller実装
+
+**JIRA**: MP-9 ✅  
+**優先度**: High  
+**見積もり**: 3 SP  
+**担当**: 開発者
+
+**説明**:
+Spring MVC ControllerをTDDで実装します。
+
+**受け入れ条件**:
+- [x] CalculatorController実装
+- [x] HistoryController実装（または統合）
+- [x] @WebMvcTestによるテスト
+- [x] MockMvc使用
+- [x] テストカバレッジ90%以上
+
+**サブタスク**:
+
+#### Task 5.1.1: DTO作成
+- [ ] CalculationRequest作成（0.5h）
+  - @NotNull バリデーション
+  - operand1, operand2, operation
+
+#### Task 5.1.2: CalculatorController（TDD）
+- [ ] **[Red]** CalculatorControllerTest作成（2h）
+  - @WebMvcTest使用
+  - GET `/` テスト
+  - POST `/calculate` テスト（成功ケース）
+  - POST `/calculate` テスト（エラーケース）
+  - UseCaseモック化
+- [ ] **[Green]** CalculatorController実装（1.5h）
+  - index()
+  - calculate()
+  - エラーハンドリング
+- [ ] **[Refactor]** リファクタリング（0.5h）
+
+#### Task 5.1.3: HistoryController（TDD）
+- [ ] **[Red]** HistoryControllerTest作成（1h）
+  - GET `/history` テスト
+  - POST `/history/clear` テスト
+- [ ] **[Green]** HistoryController実装（0.5h）
+  - history()
+  - clearHistory()
+- [ ] **[Refactor]** リファクタリング（0.3h）
+
+**見積もり詳細**: 6.3h ≈ 3 SP
+
+**依存関係**: Story 5.2完了後
+
+---
+
+### Story 6.2: Thymeleafテンプレート実装
+
+**JIRA**: MP-10 ✅  
+**優先度**: High  
+**見積もり**: 2 SP  
+**担当**: 開発者
+
+**説明**:
+Thymeleafテンプレートとレスポンシブデザイン（Bootstrap 5）を実装します。
+
+**受け入れ条件**:
+- [x] index.html作成
+- [x] history.html作成
+- [x] Bootstrap 5適用
+- [x] レスポンシブデザイン（PC、タブレット、スマホ）
+- [x] ブラウザ動作確認
+
+**サブタスク**:
+- [ ] Task 5.2.1: index.html作成（1.5h）
+  - フォーム（operand1, operation, operand2）
+  - 結果表示エリア
+  - エラー表示エリア
+  - Bootstrap 5クラス適用
+- [ ] Task 5.2.2: history.html作成（1h）
+  - 履歴テーブル
+  - クリアボタン
+  - 戻るリンク
+- [ ] Task 5.2.3: カスタムCSS作成（0.5h）
+  - calculator.css
+  - レスポンシブ調整
+- [ ] Task 5.2.4: ブラウザテスト（1h）
+  - Chrome、Firefox、Safari、Edge
+  - PC、タブレット、スマホ表示確認
+
+**見積もり詳細**: 4h ≈ 2 SP
+
+**依存関係**: Story 5.1完了後
+
+---
+
+## Phase 2: 統合・テスト（Implementation）
+
+### Story 7.1: E2E統合テスト
+
+**JIRA**: MP-11 ✅  
+**優先度**: High  
+**見積もり**: 2 SP  
+**担当**: 開発者
+
+**説明**:
+ユーザーシナリオに基づくE2Eテストを実装します。
+
+**受け入れ条件**:
+- [x] 計算実行シナリオテスト
+- [x] 履歴表示・クリアシナリオテスト
+- [x] エラーケーステスト
+
+**サブタスク**:
+- [ ] Task 6.1.1: 計算シナリオE2Eテスト（1.5h）
+  - 加算、減算、乗算、除算
+  - 結果表示確認
+- [ ] Task 6.1.2: 履歴シナリオE2Eテスト（1h）
+  - 履歴保存確認
+  - 履歴表示確認
+  - 履歴クリア確認
+- [ ] Task 6.1.3: エラーシナリオE2Eテスト（1h）
+  - ゼロ除算エラー
+  - バリデーションエラー
+
+**見積もり詳細**: 3.5h ≈ 2 SP
+
+**依存関係**: Story 5.2完了後
+
+---
+
+### Story 7.2: テストカバレッジ達成
+
+**JIRA**: MP-12 ✅  
+**優先度**: Medium  
+**見積もり**: 1 SP  
+**担当**: 開発者
+
+**説明**:
+テストカバレッジ95%以上を達成します。
+
+**受け入れ条件**:
+- [x] Domain層: 100%
+- [x] Application層: 95%以上
+- [x] Infrastructure層: 90%以上
+- [x] Presentation層: 90%以上
+- [x] JaCoCo レポート生成
+
+**サブタスク**:
+- [ ] Task 6.2.1: JaCoCo設定（0.5h）
+  - build.gradleに追加
+- [ ] Task 6.2.2: カバレッジ計測（0.5h）
+  - `./gradlew test jacocoTestReport`
+- [ ] Task 6.2.3: 未カバレッジ箇所の特定・テスト追加（1h）
+- [ ] Task 6.2.4: レポート確認（0.5h）
+
+**見積もり詳細**: 2.5h ≈ 1 SP
+
+**依存関係**: Story 7.1完了後
+
+---
+
+## Phase 2: ドキュメント・デプロイ準備（Implementation）
+
+### Story 8.1: ドキュメント整備
+
+**JIRA**: MP-13 ✅  
+**優先度**: Medium  
+**見積もり**: 1 SP  
+**担当**: 開発者
+
+**説明**:
+README、Javadoc、セットアップガイドを作成します。
+
+**受け入れ条件**:
+- [x] README.md更新
+- [x] Javadoc生成
+- [x] セットアップ手順書作成
+
+**サブタスク**:
+- [ ] Task 7.1.1: README.md更新（1h）
+  - プロジェクト概要
+  - セットアップ手順
+  - 使用方法
+  - アーキテクチャ図
+- [ ] Task 7.1.2: Javadoc生成（0.5h）
+  - `./gradlew javadoc`
+- [ ] Task 7.1.3: 開発者ガイド作成（0.5h）
+  - TDD開発手順
+  - Onion Architecture説明
+
+**見積もり詳細**: 2h ≈ 1 SP
+
+**依存関係**: Story 7.2完了後
+
+---
+
+### Story 8.2: デプロイ準備
+
+**JIRA**: MP-14 ✅  
+**優先度**: Low  
+**見積もり**: 1 SP  
+**担当**: 開発者
+
+**説明**:
+本番環境（PostgreSQL）用の設定とJARビルドを準備します。
+
+**受け入れ条件**:
+- [x] application-prod.yml作成
+- [x] PostgreSQL設定
+- [x] 実行可能JARビルド確認
+
+**サブタスク**:
+- [ ] Task 7.2.1: application-prod.yml作成（0.5h）
+  - PostgreSQL接続設定
+  - DDL設定（validate）
+- [ ] Task 7.2.2: PostgreSQLドライバ追加（0.2h）
+- [ ] Task 7.2.3: JARビルド・実行確認（0.8h）
+  - `./gradlew bootJar`
+  - `java -jar build/libs/calculator-app.jar`
+
+**見積もり詳細**: 1.5h ≈ 1 SP
+
+**依存関係**: Story 8.1完了後
+
+---
+
+## Phase 3: 試験（Testing）
+
+### Story 9.1: 単体テスト
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 3 SP  
+**担当**: 開発者
+
+**説明**:
+すべてのユニットのテストケース作成と実施
+
+**受け入れ条件**:
+- [ ] テストケース作成
+- [ ] 単体テスト実施
+- [ ] テストカバレッジ95%以上達成
+- [ ] バグ修正完了
+
+**サブタスク**:
+- [ ] Task 9.1.1: テストケース作成（3h）
+- [ ] Task 9.1.2: 単体テスト実施（5h）
+- [ ] Task 9.1.3: バグ修正（2h）
+
+**依存関係**: Story 8.2完了後
+
+---
+
+### Story 9.2: 結合テスト
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 3 SP  
+**担当**: QAエンジニア
+
+**説明**:
+モジュール間の連携テスト
+
+**受け入れ条件**:
+- [ ] テストシナリオ作成
+- [ ] 結合テスト実施
+- [ ] バグ修正完了
+
+**サブタスク**:
+- [ ] Task 9.2.1: テストシナリオ作成（2h）
+- [ ] Task 9.2.2: 結合テスト実施（5h）
+- [ ] Task 9.2.3: バグ修正（3h）
+
+**依存関係**: Story 9.1完了後
+
+---
+
+### Story 9.3: システムテスト（E2E）
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 2 SP  
+**担当**: QAエンジニア
+
+**説明**:
+ユーザーシナリオに基づくE2Eテスト
+
+**受け入れ条件**:
+- [ ] ユーザーシナリオ作成
+- [ ] E2Eテスト実施
+- [ ] すべてのシナリオ成功
+
+**サブタスク**:
+- [ ] Task 9.3.1: シナリオ作成（1h）
+- [ ] Task 9.3.2: E2Eテスト実施（3h）
+- [ ] Task 9.3.3: バグ修正（1h）
+
+**依存関係**: Story 9.2完了後
+
+---
+
+### Story 9.4: 性能テスト
+
+**JIRA**: 作成予定  
+**優先度**: Medium  
+**見積もり**: 2 SP  
+**担当**: QAエンジニア
+
+**説明**:
+負荷テストとレスポンスタイム測定
+
+**受け入れ条件**:
+- [ ] 負荷テスト実施
+- [ ] レスポンスタイム基準達成
+- [ ] ボトルネック特定・改善
+
+**サブタスク**:
+- [ ] Task 9.4.1: 負荷テスト実施（2h）
+- [ ] Task 9.4.2: パフォーマンス改善（3h）
+
+**依存関係**: Story 9.3完了後
+
+---
+
+## Phase 4: リリース準備（Release Preparation）
+
+### Story 10.1: 本番環境構築
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 2 SP  
+**担当**: インフラエンジニア
+
+**説明**:
+本番環境のインフラ構築と設定
+
+**受け入れ条件**:
+- [ ] サーバー構築
+- [ ] データベース設定
+- [ ] SSL証明書設定
+- [ ] 監視設定
+
+**サブタスク**:
+- [ ] Task 10.1.1: サーバー構築（2h）
+- [ ] Task 10.1.2: データベース設定（1h）
+- [ ] Task 10.1.3: SSL証明書設定（1h）
+- [ ] Task 10.1.4: 監視設定（1h）
+
+**依存関係**: Story 9.4完了後
+
+---
+
+### Story 10.2: デプロイ準備
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 1 SP  
+**担当**: 開発者
+
+**説明**:
+本番環境用の設定とビルド
+
+**受け入れ条件**:
+- [ ] 本番設定ファイル作成
+- [ ] ビルド成功
+- [ ] デプロイスクリプト作成
+
+**サブタスク**:
+- [ ] Task 10.2.1: 本番設定作成（1h）
+- [ ] Task 10.2.2: ビルド確認（0.5h）
+- [ ] Task 10.2.3: デプロイスクリプト作成（1h）
+
+**依存関係**: Story 10.1完了後
+
+---
+
+### Story 10.3: リリースドキュメント作成
+
+**JIRA**: 作成予定  
+**優先度**: Medium  
+**見積もり**: 1 SP  
+**担当**: PM
+
+**説明**:
+リリースノート、マニュアル、運用手順書の作成
+
+**受け入れ条件**:
+- [ ] リリースノート作成
+- [ ] ユーザーマニュアル作成
+- [ ] 運用手順書作成
+
+**サブタスク**:
+- [ ] Task 10.3.1: リリースノート作成（1h）
+- [ ] Task 10.3.2: マニュアル作成（1h）
+- [ ] Task 10.3.3: 運用手順書作成（0.5h）
+
+**依存関係**: Story 10.2完了後
+
+---
+
+## Phase 5: リリース（Release）
+
+### Story 11.1: ステージング環境デプロイ
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 1 SP  
+**担当**: インフラエンジニア
+
+**説明**:
+ステージング環境へのデプロイと最終確認
+
+**受け入れ条件**:
+- [ ] ステージング環境デプロイ成功
+- [ ] スモークテスト成功
+- [ ] 最終確認完了
+
+**サブタスク**:
+- [ ] Task 11.1.1: デプロイ実施（0.5h）
+- [ ] Task 11.1.2: スモークテスト（1h）
+- [ ] Task 11.1.3: 最終確認（0.5h）
+
+**依存関係**: Story 10.3完了後
+
+---
+
+### Story 11.2: 本番環境リリース
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 1 SP  
+**担当**: インフラエンジニア、PM
+
+**説明**:
+本番環境へのリリース実施
+
+**受け入れ条件**:
+- [ ] 本番環境デプロイ成功
+- [ ] スモークテスト成功
+- [ ] 監視確認
+- [ ] ステークホルダーへの通知
+
+**サブタスク**:
+- [ ] Task 11.2.1: 本番デプロイ（0.5h）
+- [ ] Task 11.2.2: スモークテスト（1h）
+- [ ] Task 11.2.3: 監視確認（0.5h）
+- [ ] Task 11.2.4: 通知送信（0.2h）
+
+**依存関係**: Story 11.1完了後
+
+---
+
+### Story 11.3: リリース承認・完了報告
+
+**JIRA**: 作成予定  
+**優先度**: High  
+**見積もり**: 1 SP  
+**担当**: PM
+
+**説明**:
+リリース承認の取得と完了報告
+
+**受け入れ条件**:
+- [ ] PM承認取得
+- [ ] 部長承認取得
+- [ ] Confluenceにリリース完了報告
+- [ ] spec.jsonのmilestones.release.completed更新
+
+**サブタスク**:
+- [ ] Task 11.3.1: PM承認取得（0.5h）
+- [ ] Task 11.3.2: 部長承認取得（0.5h）
+- [ ] Task 11.3.3: 完了報告（1h）
+
+**依存関係**: Story 11.2完了後
+
+---
+
+## タイムライン（営業日ベース）
+
+**前提**: 土日・祝日を除いた営業日で計算（1日5時間の実開発時間）
+
+### Week 1-2: プロジェクトセットアップ + Domain層
+
+```
+11/06（木）Day 1 - 11/07（金）Day 2:
+  - Story 1.1: プロジェクト初期化（2 SP）
+  - Story 2.1: Domainモデル実装（3 SP）開始
+
+  [11/08-09: 土日休み]
+
+11/10（月）Day 3 - 11/11（火）Day 4:
+  - Story 2.1: Domainモデル実装（完了）
+  - Story 2.2: CalculatorDomainService実装（5 SP）
+```
+
+**11/11（火）完了時**: Domain層100%完成、テストカバレッジ100%
+
+---
+
+### Week 2-3: Application層 + Infrastructure層
+
+```
+11/12（水）Day 5 - 11/13（木）Day 6:
+  - Story 3.1: ポート定義（1 SP）
+  - Story 3.2: CalculateUseCase実装（3 SP）
+
+11/14（金）Day 7:
+  - Story 4.1: JPA Entity実装（2 SP）開始
+
+  [11/15-16: 土日休み]
+
+11/17（月）Day 8 - 11/18（火）Day 9:
+  - Story 4.1: JPA Entity実装（完了）
+  - Story 4.2: JPA Repository実装（3 SP）
+```
+
+**11/18（火）完了時**: Application層 + Infrastructure層完成
+
+---
+
+### Week 3-4: Presentation層 + 統合テスト
+
+```
+11/19（水）Day 10 - 11/20（木）Day 11:
+  - Story 5.1: Controller実装（3 SP）
+  - Story 5.2: Thymeleafテンプレート実装（2 SP）
+
+11/21（金）Day 12:
+  - Story 6.1: E2E統合テスト（2 SP）開始
+
+  [11/22-23: 土日休み]
+
+11/24（月）Day 13 - 11/25（火）Day 14:
+  - Story 6.1: E2E統合テスト（完了）
+  - Story 6.2: テストカバレッジ達成（1 SP）
+
+11/26（水）Day 15:
+  - Story 7.1: ドキュメント整備（1 SP）
+  - Story 7.2: デプロイ準備（1 SP）
+```
+
+**11/26（水）完了時**: 全機能完成、デプロイ可能状態
+
+---
+
+**実カレンダー期間**: 2025/11/06（木）〜 2025/11/26（水）= **3週間**（営業日: 15日）
+
+---
+
+## 見積もりサマリー
+
+| フェーズ | ストーリーポイント | 工数（人日） | ストーリー数 |
+|---------|----------------|------------|------------|
+| Phase 1: セットアップ | 2 SP | 1.0 日 | 1 |
+| Phase 2: Domain層 | 8 SP | 4.0 日 | 2 |
+| Phase 3: Application層 | 4 SP | 2.0 日 | 2 |
+| Phase 4: Infrastructure層 | 5 SP | 2.5 日 | 2 |
+| Phase 5: Presentation層 | 5 SP | 2.5 日 | 2 |
+| Phase 6: 統合・テスト | 3 SP | 1.5 日 | 2 |
+| Phase 7: ドキュメント | 2 SP | 1.0 日 | 2 |
+| **合計** | **29 SP** | **14.5 日** | **13** |
+
+**換算レート**: 1 SP ≈ 0.5人日
+
+### リスク調整
+
+| リスク | 確率 | 影響（SP） | 期待値 |
+|--------|------|----------|--------|
+| TDD未経験による遅延 | 50% | +4 SP | +2 SP |
+| Onion Architecture理解 | 30% | +2 SP | +0.6 SP |
+| テストカバレッジ未達 | 20% | +2 SP | +0.4 SP |
+| **合計リスク** | - | - | **+3 SP** |
+
+### 最終見積もり
+
+- **楽観的**: 29 SP（14.5日 ≈ 約3週間）
+- **標準的**: 32 SP（16日 ≈ 約3.2週間） ← **推奨**
+- **悲観的**: 38 SP（19日 ≈ 約4週間）
+
+---
+
+## 依存関係グラフ
+
+```
+Phase 1: セットアップ
+  Story 1.1: プロジェクト初期化
+      ↓
+Phase 2: Domain層
+  Story 2.1: Domainモデル
+      ↓
+  Story 2.2: DomainService
+      ↓
+Phase 3: Application層
+  Story 3.1: ポート定義
+      ↓
+  Story 3.2: UseCase実装
+      ↓
+Phase 4: Infrastructure層
+  Story 4.1: JPA Entity
+      ↓
+  Story 4.2: JPA Repository
+      ↓
+Phase 5: Presentation層
+  Story 5.1: Controller
+      ↓
+  Story 5.2: Thymeleaf
+      ↓
+Phase 6: 統合・テスト
+  Story 6.1: E2Eテスト
+      ↓
+  Story 6.2: カバレッジ
+      ↓
+Phase 7: ドキュメント
+  Story 7.1: ドキュメント
+      ↓
+  Story 7.2: デプロイ準備
+      ↓
+  リリース準備完了
+```
+
+**クリティカルパス**: 
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+
+**並行実施可能**:
+- Phase 6.2（カバレッジ）とPhase 7.1（ドキュメント）は並行可能
+
+---
+
+## TDD開発チェックリスト
+
+### 各タスクで実施
+
+- [ ] **[Red]** テストを先に書く
+  - テストが失敗することを確認（Red）
+  - テストケースの網羅性確認
+  - エッジケースの考慮
+
+- [ ] **[Green]** 最小限のコードで実装
+  - テストがパスする最小限の実装
+  - 複雑な実装は避ける
+
+- [ ] **[Refactor]** リファクタリング
+  - コードの重複削除
+  - 可読性向上
+  - テストはグリーンを維持
+
+### コミットメッセージ規約
+
+```
+test: [Domain] Operation列挙型のテストを追加
+feat: [Domain] Operation列挙型を実装
+refactor: [Domain] Operationのコードを整理
+
+test: [Application] CalculateUseCaseのテストを追加
+feat: [Application] CalculateUseCaseを実装
+refactor: [Application] UseCaseのエラーハンドリングを改善
+```
+
+---
+
+## 開発環境チェックリスト
+
+### 開始前
+- [ ] Java 21インストール確認
+- [ ] Gradle 8.xインストール確認
+- [ ] IntelliJ IDEA（またはVS Code + Java Extension）
+- [ ] Git（Jujutsu）環境確認
+- [ ] 要件定義・設計書レビュー完了
+- [ ] JIRA Epic/Story作成
+
+### 開発中
+- [ ] 各ストーリー開始時にブランチ作成（feature/PRAC1-X）
+- [ ] TDDサイクル遵守（Red → Green → Refactor）
+- [ ] 毎日のコミット（小さなコミット）
+- [ ] PRレビュー実施
+- [ ] テストカバレッジ確認（JaCoCo）
+
+### 完了前
+- [ ] すべてのテスト合格
+- [ ] テストカバレッジ95%以上達成
+- [ ] Lintエラーなし
+- [ ] セキュリティチェック（依存関係の脆弱性）
+- [ ] ドキュメント最新化
+- [ ] リリース承認取得
+
+---
+
+## マイルストーン
+
+| マイルストーン | 完了予定日 | 営業日 | 成果物 | 受け入れ条件 |
+|--------------|----------|--------|--------|-------------|
+| ✅ タスク分割完了 | 2025-11-06（木） | Day 1 | tasks.md | 本ドキュメント |
+| Domain層完成 | 2025-11-11（火） | Day 4 | Domain層コード + テスト | カバレッジ100% |
+| Application層完成 | 2025-11-13（木） | Day 6 | Application層コード + テスト | カバレッジ95%以上 |
+| Infrastructure層完成 | 2025-11-18（火） | Day 9 | Infrastructure層コード + テスト | 統合テスト成功 |
+| Presentation層完成 | 2025-11-20（木） | Day 11 | Controller + UI | 画面動作確認 |
+| 統合テスト完了 | 2025-11-25（火） | Day 14 | E2Eテスト | すべてのシナリオ成功 |
+| リリース準備完了 | 2025-11-26（水） | Day 15 | デプロイ可能状態 | JAR実行可能 |
+
+**注**: 土日・祝日を除いた営業日ベースで計算（1日あたり5時間の実開発時間を想定）
+
+---
+
+## JIRAタスク作成用サマリー
+
+### Epic
+
+```
+Epic: MP-1 ✅
+タイトル: Web電卓アプリケーション開発
+説明: Onion Architecture + TDDで学習目的の電卓アプリを実装
+優先度: High
+ストーリーポイント: 29 SP
+URL: https://0kuri0n.atlassian.net/browse/MP-1
+```
+
+### ストーリー一覧
+
+| JIRA ID | タイトル | SP | 優先度 | 依存 | 状態 |
+|---------|---------|---|--------|------|------|
+| MP-2 | プロジェクト初期化 | 2 | High | - | ✅作成済 |
+| MP-3 | Domainモデル実装 | 3 | High | MP-2 | ✅作成済 |
+| MP-4 | CalculatorDomainService実装 | 5 | High | MP-3 | ✅作成済 |
+| MP-5 | ポート定義 | 1 | High | MP-4 | ✅作成済 |
+| MP-6 | CalculateUseCase実装 | 3 | High | MP-5 | ✅作成済 |
+| MP-7 | JPA Entity実装 | 2 | High | MP-6 | ✅作成済 |
+| MP-8 | JPA Repository実装 | 3 | High | MP-7 | ✅作成済 |
+| MP-9 | Controller実装 | 3 | High | MP-8 | ✅作成済 |
+| MP-10 | Thymeleafテンプレート実装 | 2 | High | MP-9 | ✅作成済 |
+| MP-11 | E2E統合テスト | 2 | High | MP-10 | ✅作成済 |
+| MP-12 | テストカバレッジ達成 | 1 | Medium | MP-11 | ✅作成済 |
+| MP-13 | ドキュメント整備 | 1 | Medium | MP-12 | ✅作成済 |
+| MP-14 | デプロイ準備 | 1 | Low | MP-13 | ✅作成済 |
+
+---
+
+**GitHub**: [タスク分割（最新版）](https://github.com/sk8metalme/michi-practice1/tree/main/.kiro/specs/calculator-app/tasks.md)  
+**設計書**: [design.md](./design.md) | [Confluence](https://0kuri0n.atlassian.net/wiki/spaces/Michi/pages/41124290)  
+**要件定義**: [requirements.md](./requirements.md) | [Confluence](https://0kuri0n.atlassian.net/wiki/spaces/Michi/pages/41058307)  
+**JIRA Epic**: [MP-1](https://0kuri0n.atlassian.net/browse/MP-1) ✅
+
+---
+
+**次のステップ**: 
+タスク分割のレビューを受けた後、`/kiro:spec-impl calculator-app` コマンドで実装フェーズに進んでください。
+

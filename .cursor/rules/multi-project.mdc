@@ -1,0 +1,81 @@
+---
+title: マルチプロジェクト管理ルール
+description: 複数プロジェクト並行稼働時の命名規則とワークフロー
+---
+
+# マルチプロジェクト管理ルール
+
+## プロジェクト識別
+
+### プロジェクトメタデータの読み込み
+- すべての操作で `.kiro/project.json` を参照
+- プロジェクトID、JIRA キー、Confluence ラベルを取得
+- 動的にプロジェクト情報を使用
+
+### 例
+```typescript
+const projectMeta = JSON.parse(fs.readFileSync('.kiro/project.json', 'utf8'));
+// projectMeta.projectId
+// projectMeta.jiraProjectKey
+// projectMeta.confluenceLabels
+```
+
+## 命名規則
+
+### Confluence ページ
+- 形式: `[{projectName}] {document_type}`
+- 例: `[A社-サービス1] 要件定義`
+- 例: `[Michi] ユーザー認証 設計`
+
+### JIRA Epic/Story
+- Epic: `[{projectName}] {feature_name}`
+- Story: `[{projectName}] {task_name}`
+- 例: `[Michi] ユーザー認証機能`
+
+### GitHub ブランチ
+- 形式: `{projectId}/feature/{feature_name}`
+- 例: `michi/feature/user-auth`
+- 例: `customer-a-service-1/feature/payment`
+
+### ラベル付与
+- Confluence: `projectMeta.confluenceLabels` + `requirements|design|tasks`
+- JIRA: `projectMeta.confluenceLabels` + 機能名
+
+## プロジェクト横断ビュー
+
+### Confluence ダッシュボード
+- 全プロジェクトの要件、設計、タスクを一覧表示
+- ラベルでフィルタリング可能
+- ステータス（レビュー待ち、承認済み）で絞り込み
+
+### JIRA ダッシュボード
+- プロジェクトキー別に進捗追跡
+- `project IN (MICHI, PRJA, PRJB)` でフィルタ
+- ストーリーポイント集計
+
+## ワークフロー統一
+
+すべてのプロジェクトで同じワークフローを使用：
+
+1. `/kiro:spec-init` → 仕様初期化
+2. `/kiro:spec-requirements` → 要件定義（Confluence 同期）
+3. `/kiro:spec-design` → 設計（Confluence 同期 + 見積もり）
+4. `/kiro:spec-tasks` → タスク分割（JIRA 連携）
+5. `/kiro:spec-impl` → TDD 実装
+6. GitHub PR → レビュー
+7. リリース準備
+
+## プロジェクト切り替え
+
+複数プロジェクトを切り替えながら作業する場合：
+
+1. リポジトリをチェックアウト
+2. `.kiro/project.json` を確認
+3. 対応する Confluence/JIRA ページを開く
+
+## 重要な注意事項
+
+- プロジェクトごとに独立した `.kiro/project.json` を維持
+- JIRA プロジェクトキーは一意にする
+- Confluence ラベルでプロジェクトを識別
+- GitHub ブランチ名にプロジェクト ID を含める

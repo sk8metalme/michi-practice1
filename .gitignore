@@ -1,0 +1,7 @@
+
+# AI Development Workflow
+node_modules/
+.env
+.env.local
+dist/
+*.log
