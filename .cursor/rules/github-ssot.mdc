@@ -1,0 +1,151 @@
+---
+title: GitHub Single Source of Truth ルール
+description: GitHubを真実の源とし、Confluenceと同期する運用ルール
+---
+
+# GitHub Single Source of Truth (SSoT) ルール
+
+## 基本原則
+
+### Single Source of Truth
+- **すべての仕様書は GitHub で管理**（.kiro/specs/）
+- Confluence は**参照・承認専用**（編集は GitHub のみ）
+- 二重管理を避ける
+
+### データフロー
+```
+GitHub (.kiro/specs/)  ← 真実の源（編集可能）
+    ↓ 同期
+Confluence ← 表示・承認用（読み取り専用）
+```
+
+## ファイル構造
+
+### GitHub リポジトリ
+```
+.kiro/
+├── project.json          # プロジェクトメタデータ
+├── specs/
+│   └── <feature>/
+│       ├── requirements.md  # 要件定義
+│       ├── design.md        # 設計
+│       ├── tasks.md         # タスク分割
+│       └── test-report.md   # テスト結果
+└── settings/
+    └── templates/       # テンプレート
+```
+
+## ワークフロー
+
+### 1. Markdown 生成 → GitHub
+```
+Cursor: /kiro:spec-requirements <feature>
+  ↓ 生成: .kiro/specs/<feature>/requirements.md
+  ↓
+jj commit -m "docs: 要件定義追加"
+jj git push
+```
+
+### 2. GitHub → Confluence 同期
+```
+Cursor AI (MCP使用):
+  1. GitHub URL取得
+  2. Markdown → Confluence Storage Format変換
+  3. confluence_create_page() でページ作成
+  4. GitHub リンクを埋め込み
+```
+
+### 3. Confluence で承認
+- 企画・部長が Confluence でレビュー
+- Page Properties で承認
+- 承認完了 → 次フェーズへ
+
+### 4. GitHub で技術レビュー
+- 技術者は GitHub で Markdown レビュー
+- PR 形式でコメント・修正提案（オプション）
+- マージ後、自動的に Confluence 更新
+
+## Confluence ページ構成
+
+### テンプレート構造
+```markdown
+## GitHub連携
+📄 最新版は [GitHub](URL) で管理
+編集はGitHubで行い、自動同期されます
+
+---
+
+{変換されたMarkdown}
+
+---
+
+## 承認
+{approval マクロ}
+承認者: @企画, @部長
+{/approval}
+```
+
+## レビューフロー分離
+
+### 技術者レビュー（GitHub）
+- 対象: requirements.md, design.md, tasks.md
+- 方法: GitHub PR、コメント
+- 観点: 技術的正確性、実装可能性
+
+### 企画・部長レビュー（Confluence）
+- 対象: 要件、設計、見積もり
+- 方法: Confluence コメント、承認マクロ
+- 観点: ビジネス要件、優先度、予算
+
+## 更新の同期
+
+### GitHub 更新時
+```
+GitHub プッシュ
+  ↓ Webhook（オプション）
+Confluence 自動更新
+```
+
+### 手動同期
+```bash
+# コマンド実行
+/kiro:confluence-sync <feature>
+
+# または npm script
+npm run confluence:sync <feature>
+```
+
+## メリット
+
+✅ **バージョン管理**: すべての変更履歴が GitHub に
+✅ **二重管理ゼロ**: Confluence は参照のみ
+✅ **技術者フレンドリー**: Markdown, Git, PR
+✅ **企画・部長フレンドリー**: Confluence の使いやすい UI
+✅ **自動同期**: プッシュ = Confluence 更新
+✅ **証跡管理**: GitHub が正式記録
+
+## 禁止事項
+
+❌ Confluence で直接編集
+❌ GitHub と Confluence の両方で管理
+❌ Confluence から GitHub への逆同期
+
+## 例外ケース
+
+以下の場合のみ Confluence で直接作成可能：
+- 議事録（会議メモ）
+- 一時的なメモ
+- プロジェクト外のドキュメント
+
+## トラブルシューティング
+
+### Confluence が古い場合
+```bash
+# 手動で再同期
+/kiro:confluence-sync <feature>
+```
+
+### 同期エラーの場合
+1. GitHub の Markdown が正しいか確認
+2. Confluence API 認証を確認
+3. ページ ID が正しいか確認

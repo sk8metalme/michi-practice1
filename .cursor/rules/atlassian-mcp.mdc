@@ -1,0 +1,200 @@
+---
+title: Atlassian MCP連携ルール
+description: Confluence/JIRA との MCP 統合ルール
+---
+
+# Atlassian MCP連携ルール
+
+## 前提条件
+
+Cursor に Atlassian MCP サーバーが設定されていること：
+- `~/.cursor/mcp.json` に認証情報設定済み
+
+参考: [Atlassian MCP](https://www.atlassian.com/ja/platform/remote-mcp-server)
+
+## 利用可能なMCPツール
+
+Cursor AI が以下のツールを使用可能：
+
+### Confluence
+- `confluence_create_page`: ページ作成
+- `confluence_update_page`: ページ更新
+- `confluence_search`: ページ検索
+- `confluence_get_page`: ページ取得
+
+### JIRA
+- `jira_create_issue`: チケット作成
+- `jira_update_issue`: チケット更新
+- `jira_search`: チケット検索
+- `jira_get_issue`: チケット取得
+
+## ワークフロー統合
+
+### 要件定義フェーズ
+
+`.kiro/specs/<feature>/requirements.md` 生成後：
+
+```
+Cursor AI（自動実行）:
+1. プロジェクトメタデータを読み込み (.kiro/project.json)
+2. Markdownを変換
+3. MCPツール使用:
+   confluence_create_page({
+     space: "PRD",
+     title: "[{projectName}] {feature} 要件定義",
+     content: {変換したHTML},
+     labels: [...projectMeta.confluenceLabels, "requirements", feature]
+   })
+4. ステークホルダーにメンション
+```
+
+### 設計フェーズ
+
+`.kiro/specs/<feature>/design.md` 生成後：
+
+```
+Cursor AI:
+1. 要件定義ページを検索:
+   confluence_search("requirements " + feature)
+2. 設計ページを作成:
+   confluence_create_page({
+     space: "PRD",
+     title: "[{projectName}] {feature} 設計",
+     parent_page_id: {要件ページID},
+     content: {変換したHTML + 見積もり},
+     labels: [...projectMeta.confluenceLabels, "design", feature]
+   })
+```
+
+### タスク分割フェーズ
+
+`.kiro/specs/<feature>/tasks.md` 生成後：
+
+```
+Cursor AI:
+1. Epic作成:
+   jira_create_issue({
+     project: projectMeta.jiraProjectKey,
+     issue_type: "Epic",
+     summary: "[{projectName}] {feature}",
+     description: "Epic for " + feature
+   })
+   
+2. 各ストーリー作成（ループ）:
+   jira_create_issue({
+     project: projectMeta.jiraProjectKey,
+     issue_type: "Story",
+     summary: "[{projectName}] {storyTitle}",
+     epic_link: {Epic ID},
+     story_points: {estimate}
+   })
+```
+
+### 実装フェーズ
+
+実装開始時と完了時にJIRAを更新：
+
+```
+Cursor AI:
+1. 開始時:
+   jira_update_issue({
+     issue_key: "MICHI-123",
+     status: "In Progress"
+   })
+   
+2. PR作成後:
+   jira_update_issue({
+     issue_key: "MICHI-123",
+     status: "In Review",
+     comment: "PR作成: {PR URL}"
+   })
+```
+
+## MCP使用のガイドライン
+
+### いつMCPを使うか
+
+✅ **使用推奨**:
+- Confluenceページの作成・更新
+- JIRAチケットの作成・更新
+- 単一操作（1ページ、1チケット）
+- Cursor AI内での対話的操作
+
+❌ **使用非推奨**:
+- 一括処理（10+ページ/チケット）
+- 複雑なワークフロー
+- スケジュール実行
+- バックグラウンド処理
+
+### MCPとREST APIの使い分け
+
+| 用途 | 手段 | 理由 |
+|------|------|------|
+| 単一ページ作成 | MCP | シンプル、AI統合 |
+| 複数ページ一括作成 | REST API | エラーハンドリング |
+| JIRAチケット作成 | MCP | 階層構造の自動構築 |
+| JIRA一括更新 | REST API | レート制限管理 |
+
+## レート制限
+
+Atlassian のレート制限は製品（Confluence/JIRA）、テナント、アプリコンテキスト、プランによって異なり、割り当て（quota）とバースト（burst）方式、または分単位のウィンドウで制御されます。
+
+**Confluence Cloud**:
+- マイグレーション時: 6,000～12,000リクエスト/分
+- 一般使用: 割り当て＋バースト方式（約10秒のバーストウィンドウ、1時間のクォータウィンドウ）
+
+**JIRA Cloud**:
+- コスト/割り当てベースの制限（アプリごと、ユーザーごと、アプリ＋ユーザー）
+- Issue書き込み制限: 20操作/2秒、100操作/30秒
+
+レート制限に達すると `429` レスポンスが返され、`Retry-After` および `X-RateLimit-*` ヘッダーで再試行のガイダンスが提供されます。
+
+**推奨対策**:
+- レスポンスヘッダー（`Retry-After`, `X-RateLimit-*`）を検出・尊重
+- 指数バックオフ＋ジッター付き再試行を実装
+- キャッシングとバッチ処理を活用
+- 頻繁な操作はREST API使用（細かい制御が可能）
+
+**公式ドキュメント**:
+- [Confluence API Rate Limiting](https://developer.atlassian.com/cloud/confluence/rate-limiting/)
+- [JIRA API Rate Limiting](https://developer.atlassian.com/cloud/jira/platform/rate-limiting/)
+- [App Migration Rate Limiting](https://developer.atlassian.com/platform/app-migration/rate-limiting/)
+
+## プロジェクトメタデータの活用
+
+### MCPツール呼び出し時
+
+```typescript
+// プロジェクトメタデータを読み込み
+const projectMeta = JSON.parse(
+  fs.readFileSync('.kiro/project.json', 'utf-8')
+);
+
+// MCPツールで使用
+confluence_create_page({
+  space: "PRD",
+  title: `[${projectMeta.projectName}] ...`,
+  labels: [...projectMeta.confluenceLabels, ...additionalLabels]
+});
+```
+
+## トラブルシューティング
+
+### MCP接続エラー
+
+1. Cursor を再起動
+2. `~/.cursor/mcp.json` の認証情報を確認
+3. Atlassian API Token が有効か確認
+
+### レート制限エラー
+
+REST APIに切り替え：
+```bash
+npm run confluence:sync <feature>
+```
+
+### ページ作成エラー
+
+- Confluenceスペースが存在するか確認
+- ページタイトルが重複していないか確認
+- 権限があるか確認

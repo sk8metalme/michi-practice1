@@ -1,0 +1,53 @@
+{
+  "name": "michi",
+  "version": "1.0.0",
+  "description": "Managed Intelligent Comprehensive Hub for Integration - AI-driven development workflow automation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup:env": "bash scripts/setup-env.sh",
+    "create-project": "tsx scripts/create-project.ts",
+    "setup-existing": "tsx scripts/setup-existing-project.ts",
+    "confluence:sync": "tsx scripts/confluence-sync.ts",
+    "jira:sync": "tsx scripts/jira-sync.ts",
+    "github:create-pr": "tsx scripts/pr-automation.ts",
+    "project:list": "tsx scripts/list-projects.ts",
+    "project:dashboard": "tsx scripts/resource-dashboard.ts",
+    "multi-estimate": "tsx scripts/multi-project-estimate.ts",
+    "markdown:convert": "tsx scripts/markdown-to-confluence.ts",
+    "workflow:run": "tsx scripts/workflow-orchestrator.ts",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.2",
+    "axios": "^1.13.1",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "googleapis": "^126.0.1",
+    "jira-client": "^8.2.2",
+    "markdown-it": "^14.0.0",
+    "turndown": "^7.1.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^13.0.7",
+    "@types/node": "^20.10.6",
+    "@types/turndown": "^5.0.4",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.1"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
+
