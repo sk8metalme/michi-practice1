@@ -1,0 +1,18 @@
+{
+  "projectId": "michi-practice1",
+  "projectName": "web電卓アプリケーション",
+  "customer": "Internal",
+  "jiraProjectKey": "PRAC1",
+  "confluenceLabels": [
+    "project:internal",
+    "service:practice1"
+  ],
+  "status": "active",
+  "team": [],
+  "stakeholders": [
+    "@企画",
+    "@部長"
+  ],
+  "repository": "https://github.com/sk8metalme/michi-practice1.git",
+  "description": "web電卓アプリケーションの開発"
+}
